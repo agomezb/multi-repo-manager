@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Top folder / repository tab -->
+  <path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h3.172a1.5 1.5 0 0 1 1.06.44l1.59 1.56H19.5A1.5 1.5 0 0 1 21 8.5v1.5H3V6.5z" opacity="0.6"/>
+  <!-- Main repository container -->
+  <rect x="2" y="9" width="20" height="12" rx="2" stroke="currentColor" fill="none"/>
+  <!-- Multi-repo git branch graph inside container -->
+  <circle cx="7" cy="17" r="1.5" fill="currentColor"/>
+  <circle cx="7" cy="12.5" r="1.5" fill="currentColor"/>
+  <circle cx="16" cy="13.5" r="1.5" fill="currentColor"/>
+  <path d="M7 14v1.5"/>
+  <path d="M7 15.5c0-1.5 3-2 9-2"/>
+</svg>

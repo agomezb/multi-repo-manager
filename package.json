@@ -1,0 +1,257 @@
+{
+  "name": "git-project-explorer",
+  "displayName": "Git Project Explorer",
+  "description": "Multi-repo management extension for Visual Studio Code: Explorer, Commands, and CLI across all workspace Git repositories.",
+  "version": "0.1.0",
+  "publisher": "andres",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "SCM Providers",
+    "Other"
+  ],
+  "keywords": [
+    "git",
+    "multi-repo",
+    "monorepo",
+    "workspace",
+    "explorer",
+    "submodules"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "gitProjectExplorerContainer",
+          "title": "Git Project Explorer",
+          "icon": "resources/git-project-explorer.svg"
+        }
+      ]
+    },
+    "views": {
+      "gitProjectExplorerContainer": [
+        {
+          "id": "gitProjectExplorer.explorer",
+          "name": "Explorer",
+          "icon": "$(folder-library)"
+        },
+        {
+          "id": "gitProjectExplorer.commands",
+          "name": "Commands",
+          "icon": "$(play-circle)"
+        },
+        {
+          "id": "gitProjectExplorer.cli",
+          "name": "CLI",
+          "type": "webview",
+          "icon": "$(terminal)"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "gitProjectExplorer.refresh",
+        "title": "Refresh Repositories",
+        "category": "Git Project Explorer",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "gitProjectExplorer.openInTerminal",
+        "title": "Open Repository in Terminal",
+        "category": "Git Project Explorer",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "gitProjectExplorer.revealInFileManager",
+        "title": "Reveal in File Manager",
+        "category": "Git Project Explorer",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "gitProjectExplorer.fetchAll",
+        "title": "Fetch All Repositories",
+        "category": "Git Project Explorer",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "gitProjectExplorer.pullAll",
+        "title": "Pull All Repositories (Current Branch)",
+        "category": "Git Project Explorer",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "gitProjectExplorer.pullMainAll",
+        "title": "Pull from Main/Master (All Repositories)",
+        "category": "Git Project Explorer",
+        "icon": "$(repo-pull)"
+      },
+      {
+        "command": "gitProjectExplorer.pushAll",
+        "title": "Push All Repositories",
+        "category": "Git Project Explorer",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "gitProjectExplorer.statusSummary",
+        "title": "Show Status Summary (All Repositories)",
+        "category": "Git Project Explorer",
+        "icon": "$(git-compare)"
+      },
+      {
+        "command": "gitProjectExplorer.checkoutBranch",
+        "title": "Checkout Branch (All Repositories)",
+        "category": "Git Project Explorer",
+        "icon": "$(git-branch)"
+      },
+      {
+        "command": "gitProjectExplorer.stashAll",
+        "title": "Stash All Repositories",
+        "category": "Git Project Explorer",
+        "icon": "$(archive)"
+      },
+      {
+        "command": "gitProjectExplorer.stashPopAll",
+        "title": "Stash Pop (All Repositories)",
+        "category": "Git Project Explorer",
+        "icon": "$(unarchive)"
+      },
+      {
+        "command": "gitProjectExplorer.runCliCommand",
+        "title": "Run Custom Command across Repositories...",
+        "category": "Git Project Explorer",
+        "icon": "$(terminal-bash)"
+      },
+      {
+        "command": "gitProjectExplorer.showOutput",
+        "title": "Show Multi-Repo Output Log",
+        "category": "Git Project Explorer",
+        "icon": "$(output)"
+      },
+      {
+        "command": "gitProjectExplorer.showOnlyUncommitted",
+        "title": "Show Only Uncommitted",
+        "category": "Git Project Explorer",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "gitProjectExplorer.showAll",
+        "title": "Show All Repositories & Files",
+        "category": "Git Project Explorer",
+        "icon": "$(filter-filled)"
+      },
+      {
+        "command": "gitProjectExplorer.toggleRepoShowOnlyUncommitted",
+        "title": "Toggle Show Only Uncommitted",
+        "category": "Git Project Explorer",
+        "icon": "$(filter)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "gitProjectExplorer.refresh",
+          "when": "view == gitProjectExplorer.explorer || view == gitProjectExplorer.commands || view == gitProjectExplorer.cli",
+          "group": "navigation@1"
+        },
+        {
+          "command": "gitProjectExplorer.showOnlyUncommitted",
+          "when": "view == gitProjectExplorer.explorer && !gitProjectExplorer.isOnlyUncommitted",
+          "group": "navigation@2"
+        },
+        {
+          "command": "gitProjectExplorer.showAll",
+          "when": "view == gitProjectExplorer.explorer && gitProjectExplorer.isOnlyUncommitted",
+          "group": "navigation@2"
+        },
+        {
+          "command": "gitProjectExplorer.runCliCommand",
+          "when": "view == gitProjectExplorer.cli",
+          "group": "navigation@2"
+        },
+        {
+          "command": "gitProjectExplorer.showOutput",
+          "when": "view == gitProjectExplorer.explorer || view == gitProjectExplorer.commands || view == gitProjectExplorer.cli",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "gitProjectExplorer.toggleRepoShowOnlyUncommitted",
+          "when": "view == gitProjectExplorer.explorer && viewItem == repo",
+          "group": "inline@0"
+        },
+        {
+          "command": "gitProjectExplorer.toggleRepoShowOnlyUncommitted",
+          "when": "view == gitProjectExplorer.explorer && viewItem == repo-filtered",
+          "group": "inline@0"
+        },
+        {
+          "command": "gitProjectExplorer.openInTerminal",
+          "when": "view == gitProjectExplorer.explorer && (viewItem == repo || viewItem == repo-filtered)",
+          "group": "inline@1"
+        },
+        {
+          "command": "gitProjectExplorer.revealInFileManager",
+          "when": "view == gitProjectExplorer.explorer && (viewItem == repo || viewItem == repo-filtered || viewItem == folder || viewItem == file)",
+          "group": "inline@2"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Git Project Explorer",
+      "properties": {
+        "gitProjectExplorer.searchDepth": {
+          "type": "integer",
+          "default": 4,
+          "description": "Maximum directory depth to search for Git repositories in the workspace."
+        },
+        "gitProjectExplorer.excludePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/.cache/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/target/**",
+            "**/.venv/**",
+            "**/vendor/**"
+          ],
+          "description": "Glob patterns to ignore when scanning for Git repositories."
+        },
+        "gitProjectExplorer.defaultBranchNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "main",
+            "master",
+            "develop"
+          ],
+          "description": "Candidate branch names considered as primary/main branch for 'Pull from Main'."
+        }
+      }
+    }
+  },
+  "packageManager": "pnpm@10.15.0",
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "build": "tsc -p ./",
+    "test": "npx tsc test/verify.ts --outDir dist/test --module commonjs --target ES2022 --skipLibCheck --esModuleInterop && node -r ./test/run-test.js dist/test/test/verify.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.3"
+  }
+}
