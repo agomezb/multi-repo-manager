@@ -3,3 +3,4 @@ dist/test/
 .DS_Store
 dist/
 *.log
+*.vsix

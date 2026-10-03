@@ -1,0 +1,14 @@
+.vscode/**
+.claude/**
+src/**
+test/**
+dist/test/**
+node_modules/**
+**/*.map
+**/*.ts
+tsconfig.json
+pnpm-lock.yaml
+.gitignore
+resources/icon.svg
+*.vsix
+CONTRIBUTING.md

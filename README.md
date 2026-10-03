@@ -1,136 +1,85 @@
-# Git Project Explorer (Multi-Repo Manager para Visual Studio Code)
+# Git Project Explorer
 
-Una extensión para **Visual Studio Code** diseñada para desarrolladores y equipos que trabajan con múltiples repositorios de Git dentro de un mismo espacio de trabajo (*multi-repo workspaces*).
+Manage every Git repository in your workspace from one place. Git Project Explorer is built for multi-repo workspaces: it finds all the repositories under your open folders and lets you browse, filter, and run Git commands across all of them at once.
 
-Proporciona un nuevo contenedor en la barra lateral izquierda con tres secciones integradas:
-1. **Explorer**: Árbol independiente para cada proyecto Git con navegación completa de carpetas y apertura de archivos.
-2. **Commands**: Comandos Git predefinidos para ejecutar en lote sobre todos los repositorios simultáneamente (`Pull`, `Push`, `Fetch`, `Status`, `Checkout`, `Stash`).
-3. **CLI**: Terminal interactiva y ejecutor de comandos arbitrarios con selección de repositorios, historial y visor de logs.
+It adds a **Git Project Explorer** container to the Activity Bar with three views:
 
----
+- **Explorer**: one tree per repository, with branch, changes, and ahead/behind status.
+- **Commands**: one-click Git operations (fetch, pull, push, checkout, stash) across all repositories.
+- **CLI**: run any shell or Git command on all repositories, or only on the ones you pick.
 
-## Características
+## Features
 
-### 1. Detección Automática de Repositorios (Estilo Source Control)
-- Escanea automáticamente la carpeta actual o espacio de trabajo en busca de repositorios `.git`.
-- Ignora inteligentemente carpetas pesadas como `node_modules`, `dist`, `.cache`, `target`, etc.
-- Se integra con la API nativa de Git de VS Code cuando está activa.
-- Muestra en tiempo real la rama activa, si hay cambios pendientes (*dirty status*) y el conteo de commits por subir o bajar (*ahead / behind*).
+### Automatic repository detection
 
-### 2. Sección Explorer
-- Cada repositorio aparece como un nodo raíz independiente en el árbol.
-- Al expandir un repositorio, navega por su jerarquía de carpetas y archivos.
-- Al hacer clic en cualquier archivo, se abre inmediatamente en el editor de VS Code.
-- **Acción "Show Only Uncommitted" (en la barra de título del Explorer)**:
-  - Junto a *Refresh* y *Show Output Log*.
-  - Al activarla, filtra la vista para mostrar **únicamente** los repositorios con cambios sin commit y, dentro de ellos, **únicamente** los archivos modificados/sin seguimiento.
-  - Al desactivarla, vuelve a mostrar todos los repositorios y archivos.
-- **Acción "Show Only Uncommitted" por repositorio**:
-  - Cada repositorio tiene su propio botón de filtro inline `$(filter)` para alternar la vista de solo cambios de manera individual.
-- Opciones de menú contextual para:
-  - **Abrir terminal integrada en la raíz del repositorio**.
-  - **Revelar archivo o carpeta en el explorador del sistema operativo** (Finder / Explorer).
+- Scans your workspace folders for Git repositories, up to a configurable depth.
+- Skips heavy folders such as `node_modules`, `dist`, `build`, `target`, `.venv`, and `vendor`.
+- Uses VS Code's built-in Git extension when it is available.
+- Shows each repository's current branch, whether it has uncommitted changes, and how many commits it is ahead of or behind its upstream.
 
-### 3. Sección Commands
-Acciones rápidas sobre **todos** los repositorios con barra de progreso y resumen de resultados:
-- 🔄 **Fetch All**: `git fetch --all --prune`
-- ⬇️ **Pull All (Current Branch)**: `git pull` en la rama activa de cada repositorio.
-- 🌟 **Pull from Main/Master**: Detecta la rama por defecto (`main`, `master`, `develop`) y hace pull en todos los repositorios.
-- ⬆️ **Push All**: `git push` en todos los repositorios con diálogo de confirmación de seguridad.
-- 📊 **Status Summary**: Resumen consolidado del estado de cambios en el espacio de trabajo.
-- 🌿 **Checkout / Switch Branch**: Solicita el nombre de una rama y cambia a ella en todos los repositorios.
-- 💾 **Stash All**: Guarda temporalmente cambios sin confirmar en todos los repositorios.
-- 📦 **Stash Pop All**: Restaura los cambios guardados en el stash.
+### Explorer
 
-### 4. Sección CLI
-- Permite ingresar cualquier comando de terminal o Git (ejemplo: `git status -s`, `git branch -a`, `git log -1`, `npm test`).
-- Selector con casillas de verificación para ejecutar en todos los repositorios o solo en los seleccionados.
-- Chips con atajos a comandos frecuentes.
-- Historial de comandos recientes.
-- Consola integrada con salida en vivo de `stdout` y `stderr` etiquetada por repositorio.
+- Each repository is a root node that expands into its folders and files. Click a file to open it.
+- **Show Only Uncommitted** (view title bar) filters the tree down to repositories with uncommitted changes, and within them to the modified and untracked files only. Click again to show everything.
+- Each repository also has its own inline filter button, so you can focus on the changes in one repository without filtering the others.
+- Inline actions on each repository:
+  - **Open in Terminal** opens an integrated terminal at the repository root.
+  - **More Actions...** runs pull, pull from main, push, fetch, checkout, stash, stash pop, or status on that repository alone.
+- **Reveal in File Manager** (right-click) shows a repository, folder, or file in Finder or File Explorer.
 
----
+### Commands
 
-## Cómo Probar y Ejecutar la Extensión
+Run Git operations on every repository at once, with a progress notification and a summary of the results:
 
-### Requisitos
-- [Node.js](https://nodejs.org/) (v18 o superior)
-- [pnpm](https://pnpm.io/) (v9 o v10) o npm
-- [Visual Studio Code](https://code.visualstudio.com/)
+| Command | What it runs in each repository |
+|---|---|
+| Fetch All | `git fetch --all --prune` |
+| Pull All (Current Branch) | `git pull` |
+| Pull from Main/Master | `git pull origin <primary branch>`, merging the first existing branch from `gitProjectExplorer.defaultBranchNames` into the current branch |
+| Push All | `git push`, after a confirmation dialog |
+| Status Summary | A combined summary of uncommitted changes |
+| Checkout Branch | `git checkout <branch>`, for a branch name you enter |
+| Stash All | `git stash` |
+| Stash Pop | `git stash pop` |
 
-### Pasos:
+All commands are also available from the Command Palette under the **Git Project Explorer** category.
 
-1. **Instalar dependencias**:
-   ```bash
-   pnpm install
-   ```
+### CLI
 
-2. **Compilar el proyecto**:
-   ```bash
-   pnpm run compile
-   ```
-   *(O dejar `pnpm run watch` corriendo en segundo plano)*
+- Run any command (for example `git status -s`, `git branch -a`, or `npm test`) across repositories.
+- Use the checkboxes to run on all repositories or only the selected ones.
+- Shortcut chips for common commands, plus a history of recent commands.
+- Live `stdout` and `stderr` output, labeled by repository.
 
-3. **Ejecutar en VS Code**:
-   - Abre la carpeta `multi-repo-manager` en VS Code.
-   - Presiona **F5** (o ve al panel *Run & Debug* y selecciona **"Run Extension (F5)"**).
-   - Se abrirá una nueva ventana de VS Code (*[Extension Development Host]*).
-   - En la nueva ventana, abre una carpeta que contenga múltiples repositorios de Git.
-   - En la barra lateral izquierda verás el icono de **Git Project Explorer**.
+## Requirements
 
----
+- VS Code 1.85 or later.
+- Git installed and available on your `PATH`.
 
-## Configuración
+## Getting started
 
-En la configuración de VS Code (`settings.json`) puedes personalizar:
+1. Open a folder (or a multi-root workspace) that contains several Git repositories.
+2. Click the **Git Project Explorer** icon in the Activity Bar.
+3. Your repositories appear in the **Explorer** view. Use **Refresh** in the view title bar if you add or remove repositories.
 
-```json
-{
-  // Profundidad máxima de búsqueda de repositorios Git en el workspace
-  "gitProjectExplorer.searchDepth": 4,
+Every Git command the extension runs is logged. Use **Show Multi-Repo Output Log** in the view title bar to see the full output.
 
-  // Patrones a excluir en el escaneo
-  "gitProjectExplorer.excludePatterns": [
-    "**/node_modules/**",
-    "**/.cache/**",
-    "**/dist/**",
-    "**/build/**",
-    "**/target/**",
-    "**/.venv/**"
-  ],
+## Extension settings
 
-  // Nombres candidatos para la rama principal al usar 'Pull from Main'
-  "gitProjectExplorer.defaultBranchNames": [
-    "main",
-    "master",
-    "develop"
-  ]
-}
-```
+| Setting | Default | Description |
+|---|---|---|
+| `gitProjectExplorer.searchDepth` | `4` | Maximum folder depth to search for Git repositories. |
+| `gitProjectExplorer.excludePatterns` | `node_modules`, `.cache`, `dist`, `build`, `target`, `.venv`, `vendor` | Glob patterns to skip while scanning. |
+| `gitProjectExplorer.defaultBranchNames` | `["main", "master", "develop"]` | Branch names tried, in order, as the primary branch for **Pull from Main/Master**. |
 
----
+## Release notes
 
-## Estructura del Código
+See the [CHANGELOG](CHANGELOG.md).
 
-```
-multi-repo-manager/
-├── .vscode/                     # Configuración de depuración y compilación
-│   ├── launch.json
-│   └── tasks.json
-├── resources/                   # Iconos vectoriales (Activity Bar)
-│   └── git-project-explorer.svg
-├── src/
-│   ├── extension.ts             # Punto de entrada y registro de comandos
-│   ├── models/
-│   │   └── types.ts             # Interfaces TypeScript
-│   ├── services/
-│   │   ├── gitService.ts        # Motor de Git y escáner de repositorios
-│   │   └── outputChannel.ts     # Canal de logs 'Git Project Explorer'
-│   └── views/
-│       ├── explorer/            # TreeDataProvider de la sección Explorer
-│       ├── commands/            # TreeDataProvider de la sección Commands
-│       └── cli/                 # WebviewViewProvider de la sección CLI
-├── package.json
-├── tsconfig.json
-└── README.md
-```
+## Contributing
+
+Bug reports and pull requests are welcome on [GitHub](https://github.com/agomezb/multi-repo-manager). See [CONTRIBUTING](CONTRIBUTING.md) to set up a development environment.
+
+## License
+
+[MIT](LICENSE)
