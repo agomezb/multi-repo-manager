@@ -149,9 +149,21 @@
         "title": "Toggle Show Only Uncommitted",
         "category": "Git Project Explorer",
         "icon": "$(filter)"
+      },
+      {
+        "command": "gitProjectExplorer.repoMoreActions",
+        "title": "More Actions...",
+        "category": "Git Project Explorer",
+        "icon": "$(ellipsis)"
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "gitProjectExplorer.repoMoreActions",
+          "when": "false"
+        }
+      ],
       "view/title": [
         {
           "command": "gitProjectExplorer.refresh",
@@ -196,9 +208,14 @@
           "group": "inline@1"
         },
         {
+          "command": "gitProjectExplorer.repoMoreActions",
+          "when": "view == gitProjectExplorer.explorer && (viewItem == repo || viewItem == repo-filtered)",
+          "group": "inline@2"
+        },
+        {
           "command": "gitProjectExplorer.revealInFileManager",
           "when": "view == gitProjectExplorer.explorer && (viewItem == repo || viewItem == repo-filtered || viewItem == folder || viewItem == file)",
-          "group": "inline@2"
+          "group": "navigation@1"
         }
       ]
     },
@@ -247,11 +264,11 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "build": "tsc -p ./",
-    "test": "npx tsc test/verify.ts --outDir dist/test --module commonjs --target ES2022 --skipLibCheck --esModuleInterop && node -r ./test/run-test.js dist/test/test/verify.js"
+    "test": "pnpm exec tsc test/verify.ts --outDir dist/test --module commonjs --target ES2022 --skipLibCheck --esModuleInterop && node -r ./test/run-test.js dist/test/test/verify.js"
   },
   "devDependencies": {
-    "@types/node": "^20.11.0",
-    "@types/vscode": "^1.85.0",
+    "@types/node": "^18.15.0",
+    "@types/vscode": "1.85.0",
     "typescript": "^5.3.3"
   }
 }

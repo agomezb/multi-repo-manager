@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { GitService } from './services/gitService';
 import { OutputLogger } from './services/outputChannel';
+import { GitCommandResult } from './models/types';
 import { GitProjectExplorerProvider, RepoTreeItem, FileSystemTreeItem } from './views/explorer/gitProjectExplorerProvider';
 import { GitCommandsProvider } from './views/commands/gitCommandsProvider';
 import { GitCliViewProvider } from './views/cli/gitCliViewProvider';
@@ -90,6 +91,123 @@ export function activate(context: vscode.ExtensionContext) {
       }
       if (targetUri) {
         vscode.commands.executeCommand('revealFileInOS', targetUri);
+      }
+    }),
+
+    // "More Actions..." (···) — per-repository Git menu, mirroring Source Control
+    vscode.commands.registerCommand('gitProjectExplorer.repoMoreActions', async (item?: RepoTreeItem) => {
+      if (!item) {
+        return;
+      }
+
+      const repo = item.repo;
+      const only = [repo];
+
+      interface RepoActionItem extends vscode.QuickPickItem {
+        run?: () => Promise<void>;
+      }
+
+      const gitAction = (title: string, action: () => Promise<GitCommandResult[]>) => async () => {
+        await runWithProgress(`${title} on ${repo.name}...`, async () => {
+          handleCommandResults(`${title} (${repo.name})`, await action());
+        });
+      };
+
+      const picks: RepoActionItem[] = [
+        { label: 'Sync', kind: vscode.QuickPickItemKind.Separator },
+        {
+          label: '$(cloud-download) Pull',
+          description: 'git pull',
+          run: gitAction('Pull', () => gitService.pullAll(only))
+        },
+        {
+          label: '$(repo-pull) Pull from Main/Master',
+          description: 'git pull origin main/master',
+          run: gitAction('Pull from Main', () => gitService.pullMainAll(only))
+        },
+        {
+          label: '$(cloud-upload) Push',
+          description: 'git push',
+          run: gitAction('Push', () => gitService.pushAll(only))
+        },
+        {
+          label: '$(sync) Fetch',
+          description: 'git fetch --all --prune',
+          run: gitAction('Fetch', () => gitService.fetchAll(only))
+        },
+        { label: 'Branch', kind: vscode.QuickPickItemKind.Separator },
+        {
+          label: '$(git-branch) Checkout to...',
+          description: 'git checkout <branch>',
+          run: async () => {
+            const input = await vscode.window.showInputBox({
+              prompt: `Branch to checkout in ${repo.name}`,
+              placeHolder: 'e.g. main, develop, feature/my-feature',
+              value: repo.currentBranch
+            });
+            if (!input || !input.trim()) {
+              return;
+            }
+            const branch = input.trim();
+            await runWithProgress(`Switching ${repo.name} to '${branch}'...`, async () => {
+              handleCommandResults(
+                `Checkout '${branch}' (${repo.name})`,
+                await gitService.checkoutBranchAll(branch, only)
+              );
+            });
+          }
+        },
+        { label: 'Stash', kind: vscode.QuickPickItemKind.Separator },
+        {
+          label: '$(archive) Stash',
+          description: 'git stash',
+          run: gitAction('Stash', () => gitService.stashAll(only))
+        },
+        {
+          label: '$(unarchive) Stash Pop',
+          description: 'git stash pop',
+          run: gitAction('Stash Pop', () => gitService.stashPopAll(only))
+        },
+        { label: 'Repository', kind: vscode.QuickPickItemKind.Separator },
+        {
+          label: '$(git-compare) Show Status',
+          description: 'git status',
+          run: async () => {
+            await runWithProgress(`Checking status of ${repo.name}...`, async () => {
+              await gitService.executeCommandOnRepositories('git status', only);
+              logger.show();
+            });
+          }
+        },
+        {
+          label: '$(terminal) Open in Terminal',
+          run: async () => {
+            await vscode.commands.executeCommand('gitProjectExplorer.openInTerminal', item);
+          }
+        },
+        {
+          label: '$(folder-opened) Reveal in File Manager',
+          run: async () => {
+            await vscode.commands.executeCommand('gitProjectExplorer.revealInFileManager', item);
+          }
+        },
+        {
+          label: '$(output) Show Git Output',
+          run: async () => {
+            logger.show();
+          }
+        }
+      ];
+
+      const picked = await vscode.window.showQuickPick(picks, {
+        title: `${repo.name} — More Actions`,
+        placeHolder: `Branch: ${repo.currentBranch || 'unknown'}${repo.isClean ? '' : ' • uncommitted changes'}`,
+        matchOnDescription: true
+      });
+
+      if (picked?.run) {
+        await picked.run();
+        explorerProvider.refresh();
       }
     }),
 
